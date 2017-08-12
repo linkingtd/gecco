@@ -23,7 +23,7 @@ public abstract class AbstractHttpRequest implements HttpRequest, Comparable<Htt
 	
 	private Map<String, String> headers;
 	
-	private int priority;
+	private long priority;
 	
 	public AbstractHttpRequest() {
 		this.parameters = new HashMap<String, String>(1);
@@ -59,6 +59,11 @@ public abstract class AbstractHttpRequest implements HttpRequest, Comparable<Htt
 		cookies.put(name, value);
 	}
 	
+	@Override
+	public String getCookie(String name) {
+		return cookies.get(name);
+	}
+
 	@Override
 	public void addParameter(String name, String value) {
 		parameters.put(name, value);
@@ -99,11 +104,11 @@ public abstract class AbstractHttpRequest implements HttpRequest, Comparable<Htt
 
 	@Override
 	public Map<String, String> getHeaders() {
-		StringBuffer sb = new StringBuffer();
+		/*StringBuffer sb = new StringBuffer();
 		for(Map.Entry<String, String> entry : cookies.entrySet()) {
 			sb.append(entry.getKey()).append("=").append(entry.getValue()).append(";");
 		}
-		headers.put("Cookie", sb.toString());
+		headers.put("Cookie", sb.toString());*/
 		return headers;
 	}
 
@@ -136,12 +141,12 @@ public abstract class AbstractHttpRequest implements HttpRequest, Comparable<Htt
 	}
 
 	@Override
-	public int getPriority() {
+	public long getPriority() {
 		return priority;
 	}
 
 	@Override
-	public void setPriority(int prio) {
+	public void setPriority(long prio) {
 		this.priority = prio;
 	}
 
@@ -171,15 +176,25 @@ public abstract class AbstractHttpRequest implements HttpRequest, Comparable<Htt
 		return request;
 	}
 
-	public static void main(String[] args) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("1", "2");
-		Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();  
-        while(it.hasNext()){
-        	it.next();
-        	//System.out.println(m);
-        	it.remove();
-        }
-        System.out.println(map);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractHttpRequest other = (AbstractHttpRequest) obj;
+		String otherJson = JSON.toJSONString(other);
+		String thisJson = JSON.toJSONString(this);
+		return otherJson.equals(thisJson);
 	}
 }

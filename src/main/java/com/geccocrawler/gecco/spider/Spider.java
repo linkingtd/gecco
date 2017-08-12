@@ -1,6 +1,7 @@
 package com.geccocrawler.gecco.spider;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,10 +15,8 @@ import com.geccocrawler.gecco.pipeline.Pipeline;
 import com.geccocrawler.gecco.request.HttpRequest;
 import com.geccocrawler.gecco.response.HttpResponse;
 import com.geccocrawler.gecco.scheduler.Scheduler;
-import com.geccocrawler.gecco.scheduler.SpiderScheduler;
-import com.geccocrawler.gecco.spider.render.FieldRenderException;
+import com.geccocrawler.gecco.scheduler.UniqueSpiderScheduler;
 import com.geccocrawler.gecco.spider.render.Render;
-import com.geccocrawler.gecco.spider.render.RenderException;
 
 /**
  * 一个爬虫引擎可以包含多个爬虫，每个爬虫可以认为是一个单独线程，爬虫会从Scheduler中获取需要待抓取的请求。
@@ -29,10 +28,16 @@ import com.geccocrawler.gecco.spider.render.RenderException;
 public class Spider implements Runnable {
 	
 	private static Log log = LogFactory.getLog(Spider.class);
-
-	public GeccoEngine engine;
 	
-	public Scheduler spiderScheduler;
+	private CountDownLatch pauseCountDown;
+	
+	private volatile boolean stop;
+	
+	private volatile boolean pause;
+	
+	private GeccoEngine engine;
+	
+	private Scheduler spiderScheduler;
 	
 	/**
 	 * 当前待渲染的bean
@@ -41,13 +46,29 @@ public class Spider implements Runnable {
 	
 	public Spider(GeccoEngine engine) {
 		this.engine = engine;
-		this.spiderScheduler = new SpiderScheduler();
+		this.spiderScheduler = new UniqueSpiderScheduler();
+		this.pause = false;
+		this.stop = false;
 	}
 	
 	public void run() {
 		//将spider放入线程本地变量，之后需要使用
 		SpiderThreadLocal.set(this);
 		while(true) {
+			//停止
+			if(stop) {
+				//告知engine线程执行结束
+				engine.notifyComplete();
+				break;
+			}
+			//暂停抓取
+			if(pause) {
+				try {
+					this.pauseCountDown.await();
+				} catch (InterruptedException e) {
+					log.error("can't pause : ", e);
+				}
+			}
 			//获取待抓取的url
 			boolean start = false;
 			HttpRequest request = spiderScheduler.out();
@@ -56,7 +77,7 @@ public class Spider implements Runnable {
 				request = engine.getScheduler().out();
 				if(request == null) {
 					//告知engine线程执行结束
-					engine.notifyComplemet();
+					engine.notifyComplete();
 					break;
 				}
 				start = true;
@@ -83,35 +104,21 @@ public class Spider implements Runnable {
 					if(response.getStatus() == 200) {
 						//render
 						Render render = context.getRender();
-						SpiderBean spiderBean = render.inject(currSpiderBeanClass, request, response);
+						
+						SpiderBean spiderBean = null;
+						spiderBean = render.inject(currSpiderBeanClass, request, response);
+						
 						//pipelines
 						pipelines(spiderBean, context);
 					} else if(response.getStatus() == 302 || response.getStatus() == 301){
 						spiderScheduler.into(request.subRequest(response.getContent()));
 					}
 				}
-			} catch(RenderException rex) {
-				if(engine.isDebug()) {
-					log.error(rex);
-				} else {
-					log.error(rex.getMessage());
-				}
-				FieldRenderException frex = (FieldRenderException)rex.getCause();
-				if(frex != null) {
-					log.error(request.getUrl() + " RENDER ERROR : " + rex.getSpiderBeanClass().getName() + "(" + frex.getField().getName()+")");
-				} else {
-					log.error(request.getUrl() + " RENDER ERROR : " + rex.getSpiderBeanClass().getName());
-				}
-			} catch(DownloadException dex) {
-				if(engine.isDebug()) {
-					log.error(dex);
-				}
-				log.error(request.getUrl() + " DOWNLOAD ERROR :" + dex.getMessage());
 			} catch(Exception ex) {
 				if(engine.isDebug()) {
-					log.error(ex);
+					log.error(request.getUrl() + " ERROR : ", ex);
 				}
-				log.error(request.getUrl(), ex);
+				log.error(request.getUrl() + " ERROR : " + ex.getClass().getName() + ex.getMessage());
 			} finally {
 				if(response != null) {
 					response.close();
@@ -127,7 +134,34 @@ public class Spider implements Runnable {
 		}
 	}
 	
+	/**
+	 * 暂停，当前正在抓取的请求会继续抓取完成，之后会等到restart的调用才继续抓取
+	 */
+	public void pause() {
+		this.pauseCountDown = new CountDownLatch(1);
+		this.pause = true;
+	}
+	
+	/**
+	 * 重新开始
+	 */
+	public void restart() {
+		this.pauseCountDown.countDown();
+		this.pause = false;
+	}
+	
+	/**
+	 * 停止抓取
+	 */
+	public void stop() {
+		this.stop = true;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void pipelines(SpiderBean spiderBean, SpiderBeanContext context) {
+		if(spiderBean == null) {
+			return ;
+		}
 		List<Pipeline> pipelines = context.getPipelines();
 		if(pipelines != null) {
 			for(Pipeline pipeline : pipelines) {
