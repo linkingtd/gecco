@@ -14,12 +14,18 @@ import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AUTH;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.MalformedChallengeException;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -33,17 +39,22 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.CharArrayBuffer;
 
+import com.geccocrawler.gecco.downloader.proxy.Proxy;
 import com.geccocrawler.gecco.downloader.proxy.Proxys;
 import com.geccocrawler.gecco.downloader.proxy.ProxysContext;
 import com.geccocrawler.gecco.request.HttpPostRequest;
@@ -71,7 +82,6 @@ public class HttpClientDownloader extends AbstractDownloader {
 		
 		cookieContext = HttpClientContext.create();
 		cookieContext.setCookieStore(new BasicCookieStore());
-		
 		Registry<ConnectionSocketFactory> socketFactoryRegistry = null;
 		try {
 			//构造一个信任所有ssl证书的httpclient
@@ -148,16 +158,34 @@ public class HttpClientDownloader extends AbstractDownloader {
 		.setSocketTimeout(timeout)//获取内容的超时时间
 		.setConnectTimeout(timeout)//建立socket连接的超时时间
 		.setRedirectsEnabled(false);
-		//proxy
-		HttpHost proxy = null;
+		
+		//代理对象
+		Proxy proxy = null;
+		//代理对象系列方法
 		Proxys proxys = ProxysContext.get();
 		boolean isProxy = ProxysContext.isEnableProxy();
 		if(proxys != null && isProxy) {
 			proxy = proxys.getProxy();
 			if(proxy != null) {
-				log.debug("proxy:" + proxy.getHostName()+":"+proxy.getPort());
-				builder.setProxy(proxy);
-				builder.setConnectTimeout(1000);//如果走代理，连接超时时间固定为1s
+				log.debug("proxy:" + proxy.getHttpHost().getHostName()+":"+proxy.getHttpHost().getPort());
+				builder.setProxy(proxy.getHttpHost());
+				//如果走代理，连接超时时间固定为1s
+				builder.setConnectTimeout(1000);
+				//设置代理用户和密码
+				if(StringUtils.isNotBlank(proxy.getUsername()) && StringUtils.isNotBlank(proxy.getPassword())){
+					BasicAuthCache authCache = new BasicAuthCache();
+					CredentialsProvider credsProvider = new BasicCredentialsProvider();
+					BasicScheme proxyAuth = new BasicScheme();
+					try {
+						proxyAuth.processChallenge(new BasicHeader(AUTH.PROXY_AUTH, "BASIC realm=default"));
+					} catch (MalformedChallengeException e) {
+						e.printStackTrace();
+					}
+					credsProvider.setCredentials(new AuthScope(proxy.getHttpHost()),new UsernamePasswordCredentials(proxy.getUsername(), proxy.getPassword()));
+					authCache.put(proxy.getHttpHost(), proxyAuth);
+					cookieContext.setAuthCache(authCache);  
+					cookieContext.setCredentialsProvider(credsProvider);
+				}
 			}
 		}
 		reqObj.setConfig(builder.build());
@@ -196,18 +224,18 @@ public class HttpClientDownloader extends AbstractDownloader {
 			} else {
 				//404，500等
 				if(proxy != null) {
-					proxys.failure(proxy.getHostName(), proxy.getPort());
+					proxys.failure(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 				}
 				throw new DownloadServerException("" + status);
 			}
 			if(proxy != null) {
-				proxys.success(proxy.getHostName(), proxy.getPort());
+				proxys.success(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 			}
 			return resp;
 		} catch (IOException e) {
 			//超时等
 			if(proxy != null) {
-				proxys.failure(proxy.getHostName(), proxy.getPort());
+				proxys.failure(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 			}
 			throw new DownloadException(e);
 		} finally {

@@ -20,5 +20,4 @@ public class ProxysContext {
 		}
 		return spider.getEngine().isProxy();
 	}
-
 }

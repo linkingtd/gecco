@@ -6,13 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpHost;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
@@ -53,7 +50,14 @@ public class FileProxys implements Proxys {
 					if(hostPort.length == 2) {
 						String host = hostPort[0];
 						int port = NumberUtils.toInt(hostPort[1], 80);
-						addProxy(host, port);
+						addProxy(host, port,null,null);
+					}
+					if(hostPort.length == 4){
+						String host = hostPort[0];
+						int port = NumberUtils.toInt(hostPort[1], 80);
+						String username = hostPort[2];
+						String password = hostPort[3];
+						addProxy(host, port,username,password);
 					}
 				}
 			}
@@ -63,31 +67,31 @@ public class FileProxys implements Proxys {
 	}
 
 	@Override
-	public boolean addProxy(String host, int port) {
-		return addProxy(host, port, null);
+	public boolean addProxy(String host, int port,String username,String password) {
+		return addProxy(host, port, username, password,null);
 	}
 
 	@Override
-	public boolean addProxy(String host, int port, String src) {
-		Proxy proxy = new Proxy(host, port);
+	public boolean addProxy(String host, int port,String username,String password, String src) {
+		Proxy proxy = new Proxy(host,port,username,password);
 		if(StringUtils.isNotEmpty(src)) {
 			proxy.setSrc(src);
 		}
 		if(proxys.containsKey(proxy.toHostString())) {
 			return false;
 		} else {
-			proxys.put(host+":"+port, proxy);
+			proxys.put(host+":"+port+":"+username+":"+password, proxy);
 			proxyQueue.offer(proxy);
 			if(log.isDebugEnabled()) {
-				log.debug("add proxy : " + host + ":" + port);
+				log.debug("add proxy : " + host + ":" + port + ":" + username + ":" + password);
 			}
 			return true;
 		}
 	}
 
 	@Override
-	public void failure(String host, int port) {
-		Proxy proxy = proxys.get(host+":"+port);
+	public void failure(String host, int port,String username,String password) {
+		Proxy proxy = proxys.get(host+":"+port+":"+username+":"+password);
 		if(proxy != null) {
 			long failure = proxy.getFailureCount().incrementAndGet();
 			long success = proxy.getSuccessCount().get();
@@ -96,8 +100,8 @@ public class FileProxys implements Proxys {
 	}
 
 	@Override
-	public void success(String host, int ip) {
-		Proxy proxy = proxys.get(host+":"+ip);
+	public void success(String host, int port,String username,String password) {
+		Proxy proxy = proxys.get(host+":"+port+":"+username+":"+password);
 		if(proxy != null) {
 			long success = proxy.getSuccessCount().incrementAndGet();
 			long failure = proxy.getFailureCount().get();
@@ -117,7 +121,7 @@ public class FileProxys implements Proxys {
 	}
 
 	@Override
-	public HttpHost getProxy() {
+	public Proxy getProxy() {
 		if(proxys == null || proxys.size() == 0) {
 			return null;
 		}
@@ -128,7 +132,6 @@ public class FileProxys implements Proxys {
 		if(proxy == null) {
 			return null;
 		}
-		return proxy.getHttpHost();
+		return proxy;
 	}
-
 }

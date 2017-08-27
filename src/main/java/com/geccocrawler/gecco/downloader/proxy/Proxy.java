@@ -1,9 +1,13 @@
 package com.geccocrawler.gecco.downloader.proxy;
 
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.http.HttpHost;
 
+/**
+ * 代理对象 封装了HttpHost对象
+ * @author ddd
+ *
+ */
 public class Proxy {
 	
 	private HttpHost httpHost;
@@ -14,11 +18,17 @@ public class Proxy {
 	
 	private String src;//来源
 	
-	public Proxy(String host, int port) {
+	//和一个httpHost对应
+	private String username;
+	private String password;
+	
+	public Proxy(String host, int port,String username,String password) {
 		this.httpHost = new HttpHost(host, port);
 		this.src = "custom";
 		this.successCount = new AtomicLong(0);
 		this.failureCount = new AtomicLong(0);
+		this.username = username;
+		this.password = password;
 	}
 
 	public HttpHost getHttpHost() {
@@ -64,11 +74,26 @@ public class Proxy {
 	public void setSrc(String src) {
 		this.src = src;
 	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
 	@Override
 	public String toString() {
-		return "Proxy [httpHost=" + httpHost + ", successCount=" + successCount
-				+ ", failureCount=" + failureCount + "]";
+		return "Proxy [httpHost=" + httpHost + ", successCount=" + successCount + ", failureCount=" + failureCount
+				+ ", src=" + src + ", username=" + username + ", password=" + password + "]";
 	}
-	
 }
