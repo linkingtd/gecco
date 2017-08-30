@@ -25,7 +25,7 @@ import com.google.common.io.Resources;
  * @author huchengyi
  *
  */
-public class FileProxys implements Proxys {
+public class FileProxys implements ProxyInterface {
 	
 	private static Log log = LogFactory.getLog(FileProxys.class);
 	
@@ -37,7 +37,7 @@ public class FileProxys implements Proxys {
 		try {
 			proxys = new ConcurrentHashMap<String, Proxy>();
 			proxyQueue = new ConcurrentLinkedQueue<Proxy>();
-			URL url = Resources.getResource("proxys");
+			URL url = Resources.getResource("proxys.properties");
 			File file = new File(url.getPath());
 			List<String> lines = Files.readLines(file, Charsets.UTF_8);
 			if(lines.size() > 0) {
@@ -89,23 +89,30 @@ public class FileProxys implements Proxys {
 		}
 	}
 
+	/**
+	 * 记录代理成功率,目前不需要
+	 */
 	@Override
 	public void failure(String host, int port,String username,String password) {
 		Proxy proxy = proxys.get(host+":"+port+":"+username+":"+password);
 		if(proxy != null) {
 			long failure = proxy.getFailureCount().incrementAndGet();
 			long success = proxy.getSuccessCount().get();
-			reProxy(proxy, success, failure);
+			//reProxy(proxy, success, failure);
 		}
 	}
 
+	/**
+	 * 代理成功ip添加队列中
+	 */
 	@Override
 	public void success(String host, int port,String username,String password) {
 		Proxy proxy = proxys.get(host+":"+port+":"+username+":"+password);
 		if(proxy != null) {
 			long success = proxy.getSuccessCount().incrementAndGet();
 			long failure = proxy.getFailureCount().get();
-			reProxy(proxy, success, failure);
+			//reProxy(proxy, success, failure);
+			adProxy(proxy, success, failure);
 		}
 	}
 	
@@ -119,6 +126,11 @@ public class FileProxys implements Proxys {
 			}
 		}
 	}
+	//成功后才调用次方法
+	private void adProxy(Proxy proxy, long success, long failure) {
+		proxyQueue.offer(proxy);
+	}
+	
 
 	@Override
 	public Proxy getProxy() {

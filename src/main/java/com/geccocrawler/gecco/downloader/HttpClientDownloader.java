@@ -55,7 +55,7 @@ import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.CharArrayBuffer;
 
 import com.geccocrawler.gecco.downloader.proxy.Proxy;
-import com.geccocrawler.gecco.downloader.proxy.Proxys;
+import com.geccocrawler.gecco.downloader.proxy.ProxyInterface;
 import com.geccocrawler.gecco.downloader.proxy.ProxysContext;
 import com.geccocrawler.gecco.request.HttpPostRequest;
 import com.geccocrawler.gecco.request.HttpRequest;
@@ -162,7 +162,7 @@ public class HttpClientDownloader extends AbstractDownloader {
 		//代理对象
 		Proxy proxy = null;
 		//代理对象系列方法
-		Proxys proxys = ProxysContext.get();
+		ProxyInterface proxys = ProxysContext.get();
 		boolean isProxy = ProxysContext.isEnableProxy();
 		if(proxys != null && isProxy) {
 			proxy = proxys.getProxy();
@@ -222,18 +222,18 @@ public class HttpClientDownloader extends AbstractDownloader {
 					resp.setContent(content);
 				}
 			} else {
-				//404，500等
+				//404，500等 网站异常地址
 				if(proxy != null) {
 					proxys.failure(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 				}
-				throw new DownloadServerException("" + status);
+				throw new DownloadServerException("网站异常地址" + status);
 			}
 			if(proxy != null) {
 				proxys.success(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 			}
 			return resp;
 		} catch (IOException e) {
-			//超时等
+			//代理超时等
 			if(proxy != null) {
 				proxys.failure(proxy.getHttpHost().getHostName(), proxy.getHttpHost().getPort(),proxy.getUsername(),proxy.getPassword());
 			}

@@ -5,7 +5,7 @@ import com.geccocrawler.gecco.spider.SpiderThreadLocal;
 
 public class ProxysContext {
 	
-	public static Proxys get() {
+	public static ProxyInterface get() {
 		Spider spider = SpiderThreadLocal.get();
 		if(spider == null) {
 			return null;

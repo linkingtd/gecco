@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
 import com.geccocrawler.gecco.downloader.proxy.FileProxys;
-import com.geccocrawler.gecco.downloader.proxy.Proxys;
+import com.geccocrawler.gecco.downloader.proxy.ProxyInterface;
 import com.geccocrawler.gecco.dynamic.DynamicGecco;
 import com.geccocrawler.gecco.dynamic.GeccoClassLoader;
 import com.geccocrawler.gecco.listener.EventListener;
@@ -66,13 +66,15 @@ public class GeccoEngine extends Thread {
 
 	private int interval;
 
-	private Proxys proxysLoader;
+	private ProxyInterface proxysLoader;
 	
 	private boolean proxy = true;
 
 	private boolean loop;
 
 	private boolean mobile;
+	
+	private boolean autoProxy;
 
 	private boolean debug;
 
@@ -157,7 +159,7 @@ public class GeccoEngine extends Thread {
 		return this;
 	}
 
-	public GeccoEngine proxysLoader(Proxys proxysLoader) {
+	public GeccoEngine proxysLoader(ProxyInterface proxysLoader) {
 		this.proxysLoader = proxysLoader;
 		return this;
 	}
@@ -172,6 +174,11 @@ public class GeccoEngine extends Thread {
 		return this;
 	}
 
+	public GeccoEngine autoProxy(boolean autoProxy) {
+		this.autoProxy = autoProxy;
+		return this;
+	}
+	
 	public GeccoEngine debug(boolean debug) {
 		this.debug = debug;
 		return this;
@@ -315,12 +322,16 @@ public class GeccoEngine extends Thread {
 		return loop;
 	}
 
-	public Proxys getProxysLoader() {
+	public ProxyInterface getProxysLoader() {
 		return proxysLoader;
 	}
-
+	
 	public boolean isMobile() {
 		return mobile;
+	}
+	
+	public boolean isAutoProxy() {
+		return autoProxy;
 	}
 
 	public boolean isDebug() {

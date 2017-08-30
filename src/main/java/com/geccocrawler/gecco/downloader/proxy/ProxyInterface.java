@@ -5,7 +5,7 @@ package com.geccocrawler.gecco.downloader.proxy;
  * @author ddd
  *
  */
-public interface Proxys {
+public interface ProxyInterface {
 	
 	public Proxy getProxy();
 

@@ -12,8 +12,9 @@ public class Proxy {
 	
 	private HttpHost httpHost;
 	
+	//20次请求内每个代理ip成功的个数
 	private AtomicLong successCount;
-	
+	//20次请求内每个代理ip失败的个数
 	private AtomicLong failureCount;
 	
 	private String src;//来源
@@ -21,6 +22,8 @@ public class Proxy {
 	//和一个httpHost对应
 	private String username;
 	private String password;
+	//代理ip是否可用
+	private boolean availableFlag;
 	
 	public Proxy(String host, int port,String username,String password) {
 		this.httpHost = new HttpHost(host, port);
@@ -91,9 +94,18 @@ public class Proxy {
 		this.password = password;
 	}
 
+	public boolean isAvailableFlag() {
+		return availableFlag;
+	}
+
+	public void setAvailableFlag(boolean availableFlag) {
+		this.availableFlag = availableFlag;
+	}
+
 	@Override
 	public String toString() {
 		return "Proxy [httpHost=" + httpHost + ", successCount=" + successCount + ", failureCount=" + failureCount
-				+ ", src=" + src + ", username=" + username + ", password=" + password + "]";
+				+ ", src=" + src + ", username=" + username + ", password=" + password + ", availableFlag="
+				+ availableFlag + "]";
 	}
 }

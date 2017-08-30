@@ -11,6 +11,7 @@ import com.geccocrawler.gecco.downloader.AfterDownload;
 import com.geccocrawler.gecco.downloader.BeforeDownload;
 import com.geccocrawler.gecco.downloader.Downloader;
 import com.geccocrawler.gecco.downloader.DownloadException;
+import com.geccocrawler.gecco.downloader.DownloadServerException;
 import com.geccocrawler.gecco.pipeline.Pipeline;
 import com.geccocrawler.gecco.request.HttpRequest;
 import com.geccocrawler.gecco.response.HttpResponse;
@@ -190,7 +191,7 @@ public class Spider implements Runnable {
 		return response;
 	}
 	
-	private HttpResponse download(SpiderBeanContext context, HttpRequest request) throws DownloadException {
+	private HttpResponse download(SpiderBeanContext context, HttpRequest request) {
 			Downloader currDownloader = null;
 			BeforeDownload before = null;
 			AfterDownload after = null;
@@ -206,7 +207,23 @@ public class Spider implements Runnable {
 			if(before != null) {
 				before.process(request);
 			}
-			HttpResponse response = currDownloader.download(request, timeout);
+			//判断如果是代理异常 就换个代理ip继续爬去
+			HttpResponse response = null;
+			try {
+				response = currDownloader.download(request, timeout);
+			} catch (DownloadServerException e) {
+				//404，500等 网站异常地址
+				if(log.isDebugEnabled()) {
+					log.debug(e.getMessage());
+				}
+			} catch (DownloadException e) {
+				//代理超时等
+				if(log.isDebugEnabled()) {
+					log.debug(e.getMessage());
+				}
+				download(context,request);
+			}
+			
 			if(after != null) {
 				after.process(request, response);
 			}

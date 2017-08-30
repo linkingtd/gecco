@@ -7,5 +7,4 @@ public class DownloadServerException extends DownloadException {
 	public DownloadServerException(String message) {
 		super(message);
 	}
-
 }
