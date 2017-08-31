@@ -73,8 +73,6 @@ public class GeccoEngine extends Thread {
 	private boolean loop;
 
 	private boolean mobile;
-	
-	private boolean autoProxy;
 
 	private boolean debug;
 
@@ -171,11 +169,6 @@ public class GeccoEngine extends Thread {
 
 	public GeccoEngine mobile(boolean mobile) {
 		this.mobile = mobile;
-		return this;
-	}
-
-	public GeccoEngine autoProxy(boolean autoProxy) {
-		this.autoProxy = autoProxy;
 		return this;
 	}
 	
@@ -328,10 +321,6 @@ public class GeccoEngine extends Thread {
 	
 	public boolean isMobile() {
 		return mobile;
-	}
-	
-	public boolean isAutoProxy() {
-		return autoProxy;
 	}
 
 	public boolean isDebug() {
