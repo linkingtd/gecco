@@ -31,7 +31,7 @@ public class TempProxyPool {
     public final static DelayQueue<TempProxy> proxyQueue = new DelayQueue();
     public final static Map<String, Class> proxyMap = new HashMap<>();
     static {
-        int pages = 1;
+        int pages = 2;
         for(int i = 1; i <= pages; i++){
 //            proxyMap.put("http://www.xicidaili.com/wt/" + i + ".html", XicidailiProxyListPageParser.class);
 //            proxyMap.put("http://www.xicidaili.com/nn/" + i + ".html", XicidailiProxyListPageParser.class);
@@ -41,9 +41,9 @@ public class TempProxyPool {
 //            proxyMap.put("http://www.mimiip.com/gngao/" + i, MimiipProxyListPageParser.class);//高匿
 //            proxyMap.put("http://www.mimiip.com/gnpu/" + i, MimiipProxyListPageParser.class);//普匿
 //            proxyMap.put("http://www.66ip.cn/" + i + ".html", Ip66ProxyListPageParser.class);
-            for(int j = 1; j < 34; j++){
-                proxyMap.put("http://www.66ip.cn/areaindex_" + j + "/" + i + ".html", Ip66ProxyListPageParser.class);
-            }
+//            for(int j = 1; j < 34; j++){
+//                proxyMap.put("http://www.66ip.cn/areaindex_" + j + "/" + i + ".html", Ip66ProxyListPageParser.class);
+//            }
         }
         proxyQueue.add(new Direct(TIME_INTERVAL));
     }

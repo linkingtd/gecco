@@ -5,6 +5,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.log4j.Logger;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.Constants;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.TempProxyPool;
@@ -28,7 +29,7 @@ public class ProxyTestTask implements Runnable{
     @Override
     public void run() {
         long startTime = System.currentTimeMillis();
-        HttpGet request = new HttpGet(Constants.INDEX_URL);
+        HttpRequestBase request = new HttpGet(Constants.INDEX_URL);
         try {
             RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(Constants.TIMEOUT).
                     setConnectTimeout(Constants.TIMEOUT).

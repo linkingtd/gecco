@@ -167,8 +167,8 @@ public class HttpClientDownloader extends AbstractDownloader {
 			if(proxy != null) {
 				log.info("proxy:" + proxy.getHttpHost().getHostName()+":"+proxy.getHttpHost().getPort());
 				builder.setProxy(proxy.getHttpHost());
-				//如果走代理，连接超时时间固定为1s
-				builder.setConnectTimeout(1000);
+				//如果走代理，连接超时时间固定为5s
+				builder.setConnectTimeout(5000);
 				//设置代理用户和密码
 				if(StringUtils.isNotBlank(proxy.getUsername()) && StringUtils.isNotBlank(proxy.getPassword())){
 					BasicAuthCache authCache = new BasicAuthCache();

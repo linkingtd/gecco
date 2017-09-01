@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 import com.geccocrawler.gecco.downloader.autoproxy.core.httpclient.AbstractHttpClient;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.SimpleThreadPoolExecutor;
-import com.geccocrawler.gecco.downloader.autoproxy.core.util.ThreadPoolMonitor;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Page;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.task.ProxyPageTask;
 
@@ -51,8 +50,6 @@ public class ProxyHttpClient extends AbstractHttpClient {
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(), "" +
                 "proxyDownloadThreadExecutor");
-        new Thread(new ThreadPoolMonitor(proxyTestThreadExecutor, "ProxyTestThreadPool")).start();
-        new Thread(new ThreadPoolMonitor(proxyDownloadThreadExecutor, "ProxyDownloadThreadExecutor")).start();
     }
 
     /**
@@ -75,7 +72,7 @@ public class ProxyHttpClient extends AbstractHttpClient {
                         }
                     }
                     try {
-                        Thread.sleep(1000 * 60 * 60);
+                        Thread.sleep(5 * 60 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

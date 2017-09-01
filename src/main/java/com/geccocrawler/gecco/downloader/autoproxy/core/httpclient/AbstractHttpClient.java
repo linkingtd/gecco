@@ -51,6 +51,7 @@ public abstract class AbstractHttpClient{
     public Page getWebPage(HttpRequestBase request) throws IOException {
         CloseableHttpResponse response = null;
             response = HttpClientUtil.getResponse(request);
+            
             Page page = new Page();
             page.setStatusCode(response.getStatusLine().getStatusCode());
             page.setHtml(EntityUtils.toString(response.getEntity()));

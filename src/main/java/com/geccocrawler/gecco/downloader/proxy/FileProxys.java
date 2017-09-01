@@ -107,6 +107,7 @@ public class FileProxys implements ProxyInterface {
 	 */
 	@Override
 	public void success(String host, int port,String username,String password) {
+//		Proxy proxy = new Proxy(host, port, null, null);
 		Proxy proxy = proxys.get(host+":"+port+":"+username+":"+password);
 		if(proxy != null) {
 			long success = proxy.getSuccessCount().incrementAndGet();
