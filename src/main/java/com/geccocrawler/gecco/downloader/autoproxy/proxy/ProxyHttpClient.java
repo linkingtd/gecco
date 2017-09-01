@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
 import com.geccocrawler.gecco.downloader.autoproxy.core.httpclient.AbstractHttpClient;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.SimpleThreadPoolExecutor;
@@ -16,7 +15,7 @@ import com.geccocrawler.gecco.downloader.autoproxy.proxy.task.ProxyPageTask;
 public class ProxyHttpClient extends AbstractHttpClient {
     private static final Logger logger = Logger.getLogger(ProxyHttpClient.class);
     private volatile static ProxyHttpClient instance;
-    public static Set<Page> downloadFailureProxyPageSet = new HashSet<>(ProxyPool.proxyMap.size());
+    public static Set<Page> downloadFailureProxyPageSet = new HashSet<>(TempProxyPool.proxyMap.size());
 
     public static ProxyHttpClient getInstance(){
         if (instance == null){
@@ -64,7 +63,7 @@ public class ProxyHttpClient extends AbstractHttpClient {
             @Override
             public void run() {
                 while (true){
-                    for (String url : ProxyPool.proxyMap.keySet()){
+                    for (String url : TempProxyPool.proxyMap.keySet()){
                         /**
                          * 首次本机直接下载代理页面
                          */

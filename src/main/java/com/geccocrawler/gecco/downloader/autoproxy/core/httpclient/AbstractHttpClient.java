@@ -2,18 +2,19 @@ package com.geccocrawler.gecco.downloader.autoproxy.core.httpclient;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.HttpClientUtil;
-import com.geccocrawler.gecco.downloader.autoproxy.core.util.SimpleLogger;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Page;
 
 public abstract class AbstractHttpClient{
-    private Logger logger = SimpleLogger.getSimpleLogger(AbstractHttpClient.class);
+	private static Log logger = LogFactory.getLog(AbstractHttpClient.class);
     public InputStream getWebPageInputStream(String url){
         try {
             CloseableHttpResponse response = HttpClientUtil.getResponse(url);

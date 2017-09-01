@@ -11,15 +11,12 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
@@ -56,6 +53,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 import com.geccocrawler.gecco.downloader.proxy.Proxy;
 import com.geccocrawler.gecco.downloader.proxy.ProxyInterface;
+import com.geccocrawler.gecco.downloader.proxy.ProxyPool;
 import com.geccocrawler.gecco.downloader.proxy.ProxysContext;
 import com.geccocrawler.gecco.request.HttpPostRequest;
 import com.geccocrawler.gecco.request.HttpRequest;
@@ -167,7 +165,7 @@ public class HttpClientDownloader extends AbstractDownloader {
 		if(proxys != null && isProxy) {
 			proxy = proxys.getProxy();
 			if(proxy != null) {
-				log.debug("proxy:" + proxy.getHttpHost().getHostName()+":"+proxy.getHttpHost().getPort());
+				log.info("proxy:" + proxy.getHttpHost().getHostName()+":"+proxy.getHttpHost().getPort());
 				builder.setProxy(proxy.getHttpHost());
 				//如果走代理，连接超时时间固定为1s
 				builder.setConnectTimeout(1000);

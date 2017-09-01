@@ -1,15 +1,11 @@
 package com.geccocrawler.gecco.downloader.autoproxy;
 
-import org.apache.log4j.Logger;
-
-import com.geccocrawler.gecco.downloader.autoproxy.core.util.SimpleLogger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyHttpClient;
 
-/**
- * 爬虫入口
- */
 public class Main {
-    private static Logger logger = SimpleLogger.getSimpleLogger(Main.class);
+	private static Log logger = LogFactory.getLog(Main.class);
     public static void main(String args []){
         ProxyHttpClient.getInstance().startCrawl();
     }

@@ -7,10 +7,12 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.log4j.Logger;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.Constants;
-import com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyPool;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.TempProxyPool;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.TestHttpClient;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Page;
-import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Proxy;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.TempProxy;
+import com.geccocrawler.gecco.downloader.proxy.Proxy;
+import com.geccocrawler.gecco.downloader.proxy.ProxyPool;
 
 /**
  * 代理检测task
@@ -19,8 +21,8 @@ import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Proxy;
  */
 public class ProxyTestTask implements Runnable{
     private final static Logger logger = Logger.getLogger(ProxyTestTask.class);
-    private Proxy proxy;
-    public ProxyTestTask(Proxy proxy){
+    private TempProxy proxy;
+    public ProxyTestTask(TempProxy proxy){
         this.proxy = proxy;
     }
     @Override
@@ -46,15 +48,17 @@ public class ProxyTestTask implements Runnable{
             }
             request.releaseConnection();
 
-            if(!ProxyPool.proxySet.contains(proxy)){
+            if(!TempProxyPool.proxySet.contains(proxy)){
                 logger.info(proxy.toString() + "----------代理可用--------请求耗时:" + (endTime - startTime) + "ms");
-                ProxyPool.lock.writeLock().lock();
+                TempProxyPool.lock.writeLock().lock();
                 try {
-                    ProxyPool.proxySet.add(proxy);
+                    TempProxyPool.proxySet.add(proxy);
                 } finally {
-                    ProxyPool.lock.writeLock().unlock();
+                    TempProxyPool.lock.writeLock().unlock();
                 }
-                ProxyPool.proxyQueue.add(proxy);
+                //ProxyPool.proxyQueue.add(proxy);
+                Proxy proxy2 = new com.geccocrawler.gecco.downloader.proxy.Proxy(proxy.getIp(), proxy.getPort(), null, null);
+                ProxyPool.proxyQueue.add(proxy2);
             }
         } catch (IOException e) {
             logger.debug("IOException:", e);

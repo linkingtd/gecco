@@ -1,4 +1,4 @@
-package com.geccocrawler.gecco.downloader;
+package com.geccocrawler.gecco.scheduler;
 
 import org.redisson.Config;
 import org.redisson.Redisson;
@@ -6,7 +6,6 @@ import org.redisson.RedissonClient;
 import org.redisson.core.RScoredSortedSet;
 
 import com.geccocrawler.gecco.request.HttpRequest;
-import com.geccocrawler.gecco.scheduler.Scheduler;
 
 public class RedisStartScheduler implements Scheduler {
 

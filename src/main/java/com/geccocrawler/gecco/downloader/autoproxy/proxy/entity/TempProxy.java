@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-public class Proxy implements Delayed, Serializable{
+public class TempProxy implements Delayed, Serializable{
     private static final long serialVersionUID = -7583883432417635332L;
     private long timeInterval ;//任务间隔时间,单位ms
     private String ip;
@@ -17,7 +17,7 @@ public class Proxy implements Delayed, Serializable{
     private int failureTimes;//请求失败次数
     private int successfulTimes;//请求成功次数
     private double successfulAverageTime;//成功请求平均耗时
-    public Proxy(String ip, int port, long timeInterval) {
+    public TempProxy(String ip, int port, long timeInterval) {
         this.ip = ip;
         this.port = port;
         this.timeInterval = timeInterval;
@@ -85,7 +85,7 @@ public class Proxy implements Delayed, Serializable{
 
     @Override
     public int compareTo(Delayed o) {
-        Proxy element = (Proxy)o;
+        TempProxy element = (TempProxy)o;
         if (successfulAverageTime == 0.0d ||element.successfulAverageTime == 0.0d){
             return 0;
         }
@@ -137,7 +137,7 @@ public class Proxy implements Delayed, Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Proxy proxy = (Proxy) o;
+        TempProxy proxy = (TempProxy) o;
 
         if (port != proxy.port) return false;
         return ip.equals(proxy.ip);

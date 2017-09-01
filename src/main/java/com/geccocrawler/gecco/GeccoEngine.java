@@ -17,8 +17,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyHttpClient;
 import com.geccocrawler.gecco.downloader.proxy.FileProxys;
+import com.geccocrawler.gecco.downloader.proxy.Proxy;
 import com.geccocrawler.gecco.downloader.proxy.ProxyInterface;
+import com.geccocrawler.gecco.downloader.proxy.ProxyPool;
 import com.geccocrawler.gecco.dynamic.DynamicGecco;
 import com.geccocrawler.gecco.dynamic.GeccoClassLoader;
 import com.geccocrawler.gecco.listener.EventListener;
@@ -68,7 +71,9 @@ public class GeccoEngine extends Thread {
 
 	private ProxyInterface proxysLoader;
 	
-	private boolean proxy = true;
+	private boolean proxy = false;
+	
+	private boolean autoProxy = false;
 
 	private boolean loop;
 
@@ -167,6 +172,11 @@ public class GeccoEngine extends Thread {
 		return this;
 	}
 
+	public GeccoEngine autoProxy(boolean autoProxy) {
+		this.autoProxy = autoProxy;
+		return this;
+	}
+	
 	public GeccoEngine mobile(boolean mobile) {
 		this.mobile = mobile;
 		return this;
@@ -236,6 +246,11 @@ public class GeccoEngine extends Thread {
 		for (HttpRequest startRequest : startRequests) {
 			scheduler.into(startRequest);
 		}
+		
+		if(autoProxy){
+			ProxyHttpClient.getInstance().startCrawl();
+		}
+		
 		spiders = new ArrayList<Spider>(threadCount);
 		for (int i = 0; i < threadCount; i++) {
 			Spider spider = new Spider(this);
@@ -331,6 +346,10 @@ public class GeccoEngine extends Thread {
 		return proxy;
 	}
 
+	public boolean isAutoProxy() {
+		return autoProxy;
+	}
+	
 	/**
 	 * spider线程告知engine执行结束
 	 */

@@ -4,7 +4,7 @@ public class Page {
     private String url;
     private int statusCode;//响应状态码
     private String html;//response content
-    private Proxy proxy;
+    private TempProxy proxy;
 
     public String getUrl() {
         return url;
@@ -30,11 +30,11 @@ public class Page {
         this.html = html;
     }
 
-    public Proxy getProxy() {
+    public TempProxy getProxy() {
         return proxy;
     }
 
-    public void setProxy(Proxy proxy) {
+    public void setProxy(TempProxy proxy) {
         this.proxy = proxy;
     }
 

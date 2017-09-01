@@ -12,15 +12,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.geccocrawler.gecco.downloader.autoproxy.core.parser.ProxyListPageParser;
-import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Proxy;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.TempProxy;
 
 /**
  * http://www.66ip.cn/
  */
 public class Ip66ProxyListPageParser implements ProxyListPageParser {
     @Override
-    public List<Proxy> parse(String content) {
-        List<Proxy> proxyList = new ArrayList<>();
+    public List<TempProxy> parse(String content) {
+        List<TempProxy> proxyList = new ArrayList<>();
         if (content == null || content.equals("")){
             return proxyList;
         }
@@ -31,7 +31,7 @@ public class Ip66ProxyListPageParser implements ProxyListPageParser {
             String port  = element.select("td:eq(1)").first().text();
             String isAnonymous = element.select("td:eq(3)").first().text();
 //            if(!anonymousFlag || isAnonymous.contains("匿")){
-                proxyList.add(new Proxy(ip, Integer.valueOf(port), TIME_INTERVAL));
+                proxyList.add(new TempProxy(ip, Integer.valueOf(port), TIME_INTERVAL));
 //            }
         }
         return proxyList;

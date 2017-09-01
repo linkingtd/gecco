@@ -8,7 +8,7 @@ import org.apache.http.HttpHost;
  * @author ddd
  *
  */
-public class Proxy {
+public class Proxy{
 	
 	private HttpHost httpHost;
 	

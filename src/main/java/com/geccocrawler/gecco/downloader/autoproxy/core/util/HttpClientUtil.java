@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
@@ -56,14 +58,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+
 
 
 /**
  * HttpClient工具类
  */
 public class HttpClientUtil {
-	private static Logger logger = SimpleLogger.getSimpleLogger(HttpClientUtil.class);
+	private static Log logger = LogFactory.getLog(HttpClientUtil.class);
     private static CookieStore cookieStore = new BasicCookieStore();
 	private static CloseableHttpClient httpClient;
 	private final static String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36";

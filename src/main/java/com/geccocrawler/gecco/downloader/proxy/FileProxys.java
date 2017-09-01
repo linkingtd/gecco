@@ -114,6 +114,7 @@ public class FileProxys implements ProxyInterface {
 			//reProxy(proxy, success, failure);
 			adProxy(proxy, success, failure);
 		}
+//		adProxy(proxy, 0, 0);
 	}
 	
 	private void reProxy(Proxy proxy, long success, long failure) {
@@ -129,6 +130,7 @@ public class FileProxys implements ProxyInterface {
 	//成功后才调用次方法
 	private void adProxy(Proxy proxy, long success, long failure) {
 		proxyQueue.offer(proxy);
+//		ProxyPool.proxyQueue.offer(proxy);
 	}
 	
 
@@ -138,6 +140,7 @@ public class FileProxys implements ProxyInterface {
 			return null;
 		}
 		Proxy proxy = proxyQueue.poll();
+//		Proxy proxy = ProxyPool.proxyQueue.poll();
 		if(log.isDebugEnabled()) {
 			log.debug("use proxy : " + proxy);
 		}

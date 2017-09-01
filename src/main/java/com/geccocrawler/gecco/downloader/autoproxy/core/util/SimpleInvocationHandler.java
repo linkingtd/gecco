@@ -1,5 +1,7 @@
 package com.geccocrawler.gecco.downloader.autoproxy.core.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.InvocationHandler;
@@ -9,8 +11,9 @@ import java.lang.reflect.Method;
  * 动态代理
  */
 public class SimpleInvocationHandler implements InvocationHandler{
-    private static Logger logger = SimpleLogger.getSimpleLogger(HttpClientUtil.class);
-
+    
+	private static Log logger = LogFactory.getLog(HttpClientUtil.class);
+    
     private Object target;
 
     public SimpleInvocationHandler() {

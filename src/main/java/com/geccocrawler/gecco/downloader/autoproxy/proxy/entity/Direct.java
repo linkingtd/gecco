@@ -3,7 +3,7 @@ package com.geccocrawler.gecco.downloader.autoproxy.proxy.entity;
 /**
  * 不使用代理，直连
  */
-public class Direct extends Proxy{
+public class Direct extends TempProxy{
     public Direct(String ip, int port, long delayTime) {
         super(ip, port, delayTime);
     }

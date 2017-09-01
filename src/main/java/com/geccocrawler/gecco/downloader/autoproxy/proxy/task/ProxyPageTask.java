@@ -1,23 +1,22 @@
 package com.geccocrawler.gecco.downloader.autoproxy.proxy.task;
 
-import static com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyPool.proxyQueue;
-
+import static com.geccocrawler.gecco.downloader.autoproxy.proxy.TempProxyPool.proxyQueue;
 import java.io.IOException;
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.log4j.Logger;
 import com.geccocrawler.gecco.downloader.autoproxy.core.parser.ProxyListPageParser;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.Config;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.Constants;
 import com.geccocrawler.gecco.downloader.autoproxy.core.util.HttpClientUtil;
-import com.geccocrawler.gecco.downloader.autoproxy.core.util.SimpleLogger;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyHttpClient;
-import com.geccocrawler.gecco.downloader.autoproxy.proxy.ProxyPool;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.TempProxyPool;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Direct;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Page;
-import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.Proxy;
+import com.geccocrawler.gecco.downloader.autoproxy.proxy.entity.TempProxy;
 import com.geccocrawler.gecco.downloader.autoproxy.proxy.site.ProxyListPageParserFactory;
 
 /**
@@ -25,10 +24,10 @@ import com.geccocrawler.gecco.downloader.autoproxy.proxy.site.ProxyListPageParse
  * 若下载失败，通过代理去下载代理网页
  */
 public class ProxyPageTask implements Runnable{
-	private static Logger logger = SimpleLogger.getSimpleLogger(ProxyPageTask.class);
+	private static Log logger = LogFactory.getLog(ProxyPageTask.class);
 	protected String url;
 	private boolean proxyFlag;//是否通过代理下载
-	private Proxy currentProxy;//当前线程使用的代理
+	private TempProxy currentProxy;//当前线程使用的代理
 
 	protected static ProxyHttpClient proxyHttpClient = ProxyHttpClient.getInstance();
 	private ProxyPageTask(){
@@ -96,16 +95,16 @@ public class ProxyPageTask implements Runnable{
 		}
 
 		ProxyListPageParser parser = ProxyListPageParserFactory.
-				getProxyListPageParser(ProxyPool.proxyMap.get(url));
-		List<Proxy> proxyList = parser.parse(page.getHtml());
-		for(Proxy p : proxyList){
-			if (!ProxyPool.proxySet.contains(p.getProxyStr())){
+				getProxyListPageParser(TempProxyPool.proxyMap.get(url));
+		List<TempProxy> proxyList = parser.parse(page.getHtml());
+		for(TempProxy p : proxyList){
+			if (!TempProxyPool.proxySet.contains(p.getProxyStr())){
 				proxyHttpClient.getProxyTestThreadExecutor().execute(new ProxyTestTask(p));
 			}
 		}
 	}
 
-	private String getProxyStr(Proxy proxy){
+	private String getProxyStr(TempProxy proxy){
 		if (proxy == null){
 			return "";
 		}
