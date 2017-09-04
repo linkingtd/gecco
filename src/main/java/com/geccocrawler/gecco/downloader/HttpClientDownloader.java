@@ -53,7 +53,6 @@ import org.apache.http.util.CharArrayBuffer;
 
 import com.geccocrawler.gecco.downloader.proxy.Proxy;
 import com.geccocrawler.gecco.downloader.proxy.ProxyInterface;
-import com.geccocrawler.gecco.downloader.proxy.ProxyPool;
 import com.geccocrawler.gecco.downloader.proxy.ProxysContext;
 import com.geccocrawler.gecco.request.HttpPostRequest;
 import com.geccocrawler.gecco.request.HttpRequest;

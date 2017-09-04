@@ -1,5 +1,6 @@
 package com.geccocrawler.gecco.scheduler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.Config;
 import org.redisson.Redisson;
 import org.redisson.RedissonClient;
@@ -11,10 +12,12 @@ public class RedisStartScheduler implements Scheduler {
 
 	private RScoredSortedSet<HttpRequest> set;
 
-	public RedisStartScheduler(String address,String password) {
+	public RedisStartScheduler(String address, String password) {
 		Config config = new Config();
 		config.useSingleServer().setAddress(address);
-		config.useSingleServer().setPassword(password);
+		if (StringUtils.isNotBlank(password)) {
+			config.useSingleServer().setPassword(password);
+		}
 		RedissonClient redisson = Redisson.create(config);
 		set = redisson.getScoredSortedSet("Gecco-StartScheduler-Redis-ScoreSet");
 	}
@@ -29,5 +32,4 @@ public class RedisStartScheduler implements Scheduler {
 	public void into(HttpRequest request) {
 		set.add(System.nanoTime(), request);
 	}
-
 }
